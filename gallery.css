@@ -319,3 +319,77 @@ body.intro-deck #gallery .c-card { opacity: 0 !important; }
 /* dropdown must paint above the fields below it (each field is its own stacking context from the entrance animation) */
 .fv-form-wrap .dd { position: relative; z-index: 1; }
 .fv-form-wrap .dd.open { z-index: 100; }
+
+/* ============ Responsive pass: tablet + mobile ============ */
+.c-stage .g-btn { z-index: 200; }
+.mobile-menu { z-index: 4999; }
+.mobile-menu a[data-action] { cursor: pointer; }
+
+/* tablet & below */
+@media (max-width: 900px) {
+  .g-hero { padding: 104px 0 96px; }
+  .g-head h1 { font-size: var(--text-4xl); }
+  .d-stage { height: min(60vh, 560px); }
+  .d-stage .c-card { height: 92%; }
+  .d-stage .prev { left: 8px; } .d-stage .next { right: 8px; }
+  .g-caption { padding: 0 20px; }
+  .g-caption h3 { font-size: var(--text-xl); }
+  .a-strip { padding-left: 16px; padding-right: 16px; }
+
+  /* focus view: art pinned on top, details + form scroll beneath it */
+  .fv-grid { display: flex; flex-direction: column; overflow: hidden; }
+  .fv-art { flex: 0 0 auto; height: min(44vh, 460px); padding: 64px 16px 8px; }
+  .fv-panel { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 18px 20px calc(48px + env(safe-area-inset-bottom)); }
+  .fv-title { font-size: var(--text-3xl); }
+  .fv-nav { bottom: auto; top: calc(min(44vh, 460px) / 2 + 20px); width: 44px; height: 44px; background: rgba(9,9,11,.78); }
+  .fv-prev { left: 6px; } .fv-next { left: auto; right: 6px; }
+  .fv-close { top: 10px; right: 10px; width: 44px; height: 44px; }
+  .fv-close span { left: 13px; top: 21px; }
+  .fv-form-wrap { padding: 20px; }
+  .fv-meta { gap: 0 20px; }
+
+  .cv .cv-inner { padding: 72px 20px calc(40px + env(safe-area-inset-bottom)); }
+}
+
+/* phones */
+@media (max-width: 600px) {
+  .g-head h1 { font-size: var(--text-3xl); }
+  .g-head p { font-size: var(--text-base); }
+  .d-stage { height: min(56vh, 470px); }
+  .fv-meta, .fv-row { grid-template-columns: 1fr; }
+  .fv-form-wrap { padding: 16px; }
+  .fv-form-wrap h3 { font-size: var(--text-xl); }
+  .g-btn { width: 44px; height: 44px; }
+  .c-stage .g-btn { background: rgba(9,9,11,.78); }
+  .intro-skip { right: 12px; bottom: 12px; padding: 12px 16px; }
+}
+
+/* landscape phones: two columns again, tighter */
+@media (max-height: 520px) and (orientation: landscape) {
+  .g-hero { padding: 84px 0 70px; }
+  .g-head { padding-bottom: 14px; } .g-head h1 { font-size: var(--text-3xl); } .g-head p { display: none; }
+  .d-stage { height: min(72vh, 300px); }
+  .fv-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); overflow: visible; }
+  .fv-art { height: auto; padding: 14px 8px 14px 56px; }
+  .fv-panel { padding: 56px 24px 24px 12px; }
+  .fv-nav { top: auto; bottom: 12px; }
+  .fv-prev { left: 8px; bottom: 64px; } .fv-next { left: 8px; bottom: 12px; right: auto; }
+  .fv-meta, .fv-row { grid-template-columns: 1fr 1fr; }
+  .cv .cv-inner { padding-top: 60px; }
+}
+
+/* ---- sent state: centred, balanced, same card size as the form ---- */
+.fv-form-wrap.sent { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.fv-form-wrap.sent .fv-done { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0; padding: 24px 8px; width: 100%; }
+.fv-done svg { display: block; margin: 0 auto 18px; width: 72px; height: 72px; }
+.fv-form-wrap .fv-done h3 { margin: 0 0 8px; font-size: var(--text-2xl); }
+.fv-form-wrap .fv-done p { margin: 0 0 24px; max-width: 32ch; font-size: 15px; line-height: 1.6; color: var(--neutral-400); }
+.fv-done .btn { margin: 0; }
+.fv-form-wrap.sent .fv-done h3, .fv-form-wrap.sent .fv-done p, .fv-form-wrap.sent .fv-done .btn { opacity: 0; animation: fvRise .8s cubic-bezier(.16,1,.3,1) forwards; }
+.fv-form-wrap.sent .fv-done h3 { animation-delay: .55s; }
+.fv-form-wrap.sent .fv-done p { animation-delay: .65s; }
+.fv-form-wrap.sent .fv-done .btn { animation-delay: .8s; }
+@media (max-width: 900px) { .fv-panel { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22px); mask-image: linear-gradient(to bottom, transparent 0, #000 22px); } }
+@media (max-height: 520px) and (orientation: landscape) { .fv-panel { -webkit-mask-image: none; mask-image: none; } }
+/* tablet landscape / small laptops: leave room under the artwork for the prev/next buttons */
+@media (min-width: 901px) and (max-width: 1100px) { .fv-art { align-self: start; height: calc(100% - 96px); padding: 0; } }

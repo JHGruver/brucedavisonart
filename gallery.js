@@ -163,7 +163,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const mod = (n, m) => ((n % m) + m) % m;
 
 // ---------- Focus view: card flies out of the deck, reveals metadata + inquiry form ----------
-const FORM_ENDPOINT = null; // production: 'https://formspree.io/f/maqqybly'. null = simulate send in mockups.
+const FORM_ENDPOINT = 'https://formspree.io/f/maqqybly'; // same Formspree endpoint as the Paralogic Presents contact form
 
 // Themed replacement for <select>: native option popups can't be styled to match the site.
 function initDropdown(dd) {
@@ -215,7 +215,8 @@ function formHTML({ piece, title, sub, options }) {
         <button type="submit" class="btn-gold w-full fv-send">Get in touch</button>
       </form>
       <div class="fv-done"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 14-16"/></svg>
-        <h3>Message sent</h3><p>Thank you — Mike will be in touch soon.</p></div>
+        <h3>Message sent</h3><p>Thank you — Mike will be in touch soon.</p>
+        <button type="button" class="btn btn-outline fv-back">Back to the gallery</button></div>
     </div>`;
 }
 
@@ -225,6 +226,7 @@ function wireForm(wrap) {
   // entrance: frame draws itself, glass fades up, then each piece rises into focus in turn
   wrap.insertAdjacentHTML('afterbegin', '<b class="fv-glow"></b><span class="fv-frame"><i></i><i></i><i></i><i></i></span>');
   wrap.querySelectorAll(':scope > h3, :scope > p, .fl, .dd, .fv-send').forEach((el, j) => { el.setAttribute('data-r', ''); el.style.setProperty('--j', j); });
+  $('.fv-back', wrap).onclick = () => wrap.closest('.fv').querySelector('.fv-close').click();
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -234,6 +236,7 @@ function wireForm(wrap) {
         const r = await fetch(FORM_ENDPOINT, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
         if (!r.ok) throw new Error();
       } else await new Promise(r => setTimeout(r, 900));
+      wrap.style.minHeight = wrap.offsetHeight + 'px';   // keep the card the same size so nothing jumps
       wrap.classList.add('sent');
     } catch { btn.textContent = 'Something went wrong — try again'; btn.disabled = false; }
   });
@@ -444,8 +447,10 @@ if (dRoot) {
     const u = Math.min(1, stage.clientWidth / 1200);
     cards.forEach((c, i) => {
       const d = mod(i - cur + n / 2, n) - n / 2, a = Math.abs(d), vis = a <= 3;
-      const x = Math.sign(d) * (a === 0 ? 0 : 255 + (a - 1) * 85) * u;
-      c.style.transform = `translateX(${x}px) translateZ(${-a * 130}px) rotateY(${-Math.sign(d) * Math.min(a, 1) * 45}deg) scale(${a === 0 ? 1.1 : .85})`;
+      const narrow = stage.clientWidth < 900, cw = cards[0].offsetWidth;
+      const x = narrow ? Math.sign(d) * (a === 0 ? 0 : cw * (0.58 + (a - 1) * 0.16))
+                       : Math.sign(d) * (a === 0 ? 0 : 255 + (a - 1) * 85) * u;
+      c.style.transform = `translateX(${x}px) translateZ(${-a * 130}px) rotateY(${-Math.sign(d) * Math.min(a, 1) * 45}deg) scale(${a === 0 ? (narrow ? 1.04 : 1.1) : .85})`;
       c.style.opacity = vis ? 1 : 0;
       c.style.filter = a === 0 ? 'none' : `brightness(${Math.max(.25, .62 - a * .12)})`;
       c.style.zIndex = 100 - a;
@@ -477,3 +482,19 @@ if (dRoot) {
   layout();
   timer = setInterval(() => { if (!document.body.classList.contains('intro-run')) go(cur + 1); }, 5000);
 }
+
+// ---------- mobile menu ----------
+(() => {
+  const ham = $('.hamburger'), menu = $('.mobile-menu');
+  if (!ham || !menu) return;
+  const set = on => {
+    ham.classList.toggle('active', on); menu.classList.toggle('active', on);
+    ham.setAttribute('aria-expanded', on); menu.setAttribute('aria-hidden', !on);
+    document.body.style.overflow = on ? 'hidden' : '';
+  };
+  ham.addEventListener('click', () => set(!menu.classList.contains('active')));
+  ham.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ham.click(); } });
+  menu.addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+  addEventListener('resize', () => { if (innerWidth > 768) set(false); });
+})();
