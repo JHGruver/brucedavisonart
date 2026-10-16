@@ -324,7 +324,12 @@ function createFocus({ getCard, getIndex, goTo, setSnap }) {
     let w = Math.min(aw, ah * ar), h = w / ar;
     return { left: r.left + (r.width - (w + pad)) / 2, top: r.top + (r.height - (h + pad)) / 2, width: w + pad, height: h + pad };
   }
-  const setRect = (el, r) => Object.assign(el.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  const placeNav = r => {   // keep prev/next controls visible, overlaid on the artwork's edges
+    root.style.setProperty('--nl', r.left + 'px');
+    root.style.setProperty('--nr', (innerWidth - (r.left + r.width)) + 'px');
+    root.style.setProperty('--nt', (r.top + r.height / 2) + 'px');
+  };
+  const setRect = (el, r) => (placeNav(r), Object.assign(el.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' }));
   const measure = p => new Promise(res => {
     if (p._ar) return res();
     const im = new Image(); im.onload = () => { p._ar = im.naturalWidth / im.naturalHeight; res(); }; im.src = p.src;
@@ -342,7 +347,7 @@ function createFocus({ getCard, getIndex, goTo, setSnap }) {
     fly = document.createElement('div');
     fly.className = 'fv-fly';
     fly.innerHTML = `<img src="${p.src}" alt="${p.title}">`;
-    document.body.appendChild(fly);
+    root.appendChild(fly);   // inside the focus layer so the prev/next controls can sit in front of it
     const to = targetRect(p);
     card.style.visibility = 'hidden';
     setRect(fly, to);
